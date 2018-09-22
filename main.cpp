@@ -1,11 +1,13 @@
+/* --- CS141 Multiplayer Tic-Tac-Toe. Created by: Ryan Stewart --- */
+
 #include<iostream>
 #include<string>
-
-/* --- Defined imports from the standard library --- */
+#include<cctype>
 
 using std::cin;
 using std::cout;
 using std::endl;
+using std::isprint;
 using std::string;
 
 
@@ -18,45 +20,50 @@ void clear()
 //Create a Player Structure
 struct Player {
     string name;
-    char symbol = ' ';
+    string symbol = " ";
 };
 
+//Create the Game Board
 class Board {
 public:
     //Symbol Positions
     char positions[9] = {' '};
 
     //The tic tac toe board in string form
-    string starting_board = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
+    string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
 
     //Used to replace the values on the board
-    string update(const bool initial=false)
+    string update(const bool INITIAL=false)
     {
         short pos = 0;
-        string final_board;
-        if (initial)
+        string finalBoard;
+
+        //Check to initialize the values of positions correctly
+        if (INITIAL)
         {
             for (char c : positions)
             {
                 c = ' ';
             }
         }
-        for (char c : starting_board)
+
+        //Used to place all of the symbols or spaces onto the board
+        for (char c : startingBoard)
         {
             if (c == '.')
             {
                 c = positions[pos];
             }
-            final_board += c;
+            finalBoard += c;
         }
-        return final_board;
+        return finalBoard;
     }
 };
 
 //Create a Game Object
 class Game {
 public:
-    Board Game_Board;
+    Board GameBoard;
     Player Player1;
     Player Player2;
 
@@ -86,7 +93,7 @@ public:
         cout << frame << endl;
         cout << "| " + TITLE + " |" << endl;
         cout << frame << endl;
-        cout << Game_Board.update(true) << endl;
+        cout << GameBoard.update(true) << endl;
         cout << frame << endl;
         cout << "  " << Player1.name << ", " << Player2.name << endl;
         cout << frame << endl;
@@ -94,15 +101,98 @@ public:
 
     void start() {
         clear();
+
+        //Get Player Names and Symbols
         cout << "Enter Player 1's Name: ";
         cin >> Player1.name;
+
+        //Make sure the name isn't too long
+        while (Player1.name.length() >= 20)
+        {
+            cout << "Please enter a name that's 20 characters or less: ";
+            cin >> Player1.name;
+        }
         cout << "Choose your symbol " + Player1.name + ": ";
         cin >> Player1.symbol;
 
+        //Check to make sure that the symbol is printable
+        bool symbolOkay = false;
+        while (!symbolOkay)
+        {
+            if (Player1.symbol.length() != 1)
+            {
+                cout << "Symbol must be only one character. Enter a new symbol: ";
+                cin >> Player1.symbol;
+            }
+            else if (!isprint(Player1.symbol[0]))
+            {
+                cout << "Symbol must be a printable character. Enter a new symbol: ";
+                cin >> Player1.symbol;
+            }
+            else if (Player1.symbol == " ")
+            {
+                cout << "Symbol cannot be a space. Enter a new symbol: ";
+                cin >> Player1.symbol;
+            }
+            else
+            {
+                symbolOkay = true;
+            }
+        }
+
         cout << "Enter Player 2's Name: ";
         cin >> Player2.name;
+
+        //Again check length and then make sure they don't have the same name as Player1
+        bool nameOkay = false;
+        while (!nameOkay)
+        {
+            if (Player2.name.length() >= 20)
+            {
+                cout << "Please enter a name that's 20 characters or less. Enter a new name: ";
+                cin >> Player2.name;
+            }
+            else if (Player2.name == Player1.name)
+            {
+                cout << "Please don't choose the same name as Player1. Enter a new name: ";
+                cin >> Player2.name;
+            }
+            else
+            {
+                nameOkay = true;
+            }
+        }
         cout << "Choose your symbol " + Player2.name + ": ";
         cin >> Player2.symbol;
+
+        //Check to make sure that the symbol is printable and not the same as the other player's
+        symbolOkay = false;
+        while (!symbolOkay)
+        {
+            if (Player2.symbol.length() != 1)
+            {
+                cout << "Symbol must be only one character. Enter a new symbol: ";
+                cin >> Player2.symbol;
+            }
+            else if (!isprint(Player2.symbol[0]))
+            {
+                cout << "Symbol must be a printable character. Enter a new symbol: ";
+                cin >> Player2.symbol;
+            }
+            else if (Player2.symbol == " ")
+            {
+                cout << "Symbol cannot be a space. Enter a new symbol: ";
+                cin >> Player2.symbol;
+            }
+            else if (Player2.symbol == Player1.symbol)
+            {
+                cout << "Symbol cannot be the same as the other player. Enter a new symbol: ";
+            }
+            else
+            {
+                symbolOkay = true;
+            }
+        }
         clear();
         layout("CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart");
     }
