@@ -1,5 +1,6 @@
 # CS141 – Term Project
 Due Monday December 10 at 11:59PM 
+
 ----
 
 ## OBJECTIVE:
@@ -17,3 +18,26 @@ For your term project you will build a tic tac toe game called SmartTTT. If you 
 - [ ] When  playing  in  Game  2  mode,  i.e. Player  vs AI  you  must  implement  an intelligent algorithm that decides the best move for the AI. Your AI is trying to win, so don’t make the AI too easy.
 - [ ] Your  game must evaluate  if  the  win  criteria  has  been metafter  each  move,  if the  win criteria has not been met then the game proceeds. If the win criteria has been met, then the game is over and you must show the winner. This could be Player 1 or Player 2 in Game 1, or Player 1 or AI in Game 2. If no win criteria has been met, and there are no spaces left then the game is over. If the game is over, ask the user if they want to play again. If the user wishes to play again, then go back to Step 1 above. 
 - [ ] Your  program  must  have  functions  and  data  structures  to  facilitate  the  game  play. Programs with no functions or data structures will be given a 0. 
+
+----
+
+##GRADING CRITERIA:
+The programming project is worth 10% of thecourse gradeand will be graded out of 100 points.
+
+The grading will be done using the following scheme:
+**Criteria | Points out of 100**
+----
+Game AI algorithm | 25
+Data structure and functions | 20
+Descriptive comments to describe program flow and function descriptions provide input, output, and error states | 10
+Compiles with no errors | 20
+Compiles with no warnings | 5
+Gracefully handles errors and does not crash the program | 10
+User friendly interface for playing the game. | 10
+Total | 100
+
+**SUBMISSION INSTRUCTIONS:**
+
+Your program must be submitted via Polaris as follows:
+1. Make sure your game is called SmartTTT.cpp.
+2. Type the following to submit your game: `cp SmartTT.cpp /afs/cu/class/cs141/f18/clarksonid` where clarksonid is your Clarkson username
