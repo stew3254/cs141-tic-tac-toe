@@ -25,8 +25,8 @@ For your term project you will build a tic tac toe game called SmartTTT. If you 
 The programming project is worth 10% of thecourse gradeand will be graded out of 100 points.
 
 The grading will be done using the following scheme:
-**Criteria | Points out of 100**
----- | ----
+**Criteria** | **Points out of 100**
+--- | ---
 Game AI algorithm | 25
 Data structure and functions | 20
 Descriptive comments to describe program flow and function descriptions provide input, output, and error states | 10
