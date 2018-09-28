@@ -17,7 +17,7 @@ For your term project you will build a tic tac toe game called SmartTTT. If you 
 - [ ] After each move is made, your game must display the current board with the moves in place. You  must  show  a  label  on  the  screen  to  indicate  what  shape  is  being  used  by which player.
 - [ ] When  playing  in  Game  2  mode,  i.e. Player  vs AI  you  must  implement  an intelligent algorithm that decides the best move for the AI. Your AI is trying to win, so don’t make the AI too easy.
 - [ ] Your  game must evaluate  if  the  win  criteria  has  been metafter  each  move,  if the  win criteria has not been met then the game proceeds. If the win criteria has been met, then the game is over and you must show the winner. This could be Player 1 or Player 2 in Game 1, or Player 1 or AI in Game 2. If no win criteria has been met, and there are no spaces left then the game is over. If the game is over, ask the user if they want to play again. If the user wishes to play again, then go back to Step 1 above. 
-- [ ] Your  program  must  have  functions  and  data  structures  to  facilitate  the  game  play. Programs with no functions or data structures will be given a 0. 
+- [X] Your  program  must  have  functions  and  data  structures  to  facilitate  the  game  play. Programs with no functions or data structures will be given a 0. 
 
 ----
 
@@ -40,5 +40,8 @@ Total | 100
 **SUBMISSION INSTRUCTIONS:**
 
 Your program must be submitted via Polaris as follows:
-1. Make sure your game is called SmartTTT.cpp.
-2. Type the following to submit your game: `cp SmartTT.cpp /afs/cu/class/cs141/f18/clarksonid` where clarksonid is your Clarkson username
+
+* Make sure your game is called SmartTTT.cpp.
+* Type the following to submit your game:
+	`cp SmartTT.cpp /afs/cu/class/cs141/f18/clarksonid`
+	where clarksonid is your Clarkson username
