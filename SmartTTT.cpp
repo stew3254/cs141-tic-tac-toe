@@ -1,8 +1,11 @@
 /* --- CS141 Multiplayer Tic-Tac-Toe. Created by: Ryan Stewart --- */
 
-#include<iostream>
-#include<string>
-#include<cctype>
+#include <iostream>
+#include <string>
+#include <cctype>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 using std::cin;
 using std::cout;
@@ -18,11 +21,13 @@ void clear()
     cout << "\033[2J\033[1;1H";
 }
 
+
 //Create a Player Structure
 struct Player {
     string name;
-    string symbol = " ";
+    char symbol = ' ';
 };
+
 
 //Create the Game Board
 class Board {
@@ -48,12 +53,15 @@ public:
     }
 };
 
+
 //Create a Game Object
 class Game {
 public:
     Board GameBoard;
     Player Player1;
     Player Player2;
+
+
 
     //Set up the layout
     void layout(const string &TITLE)
@@ -90,7 +98,18 @@ public:
     void start() {
         clear();
 
-        //Get Player Names and Symbols
+        //Define Symbols
+        Player1.symbol = 'X';
+        Player2.symbol = 'O';
+
+        /* Find a Place where to use this
+        struct winsize w{};
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+        cout << w.ws_row << ", " << w.ws_col << endl;
+        */
+
+        //Get Player Names
         cout << "Enter Player 1's Name: ";
         getline(cin, Player1.name);
 
@@ -99,33 +118,6 @@ public:
         {
             cout << "Please enter a name that's 20 characters or less: ";
             getline(cin, Player1.name);
-        }
-        cout << "Choose your symbol " + Player1.name + ": ";
-        getline(cin, Player1.symbol);
-
-        //Check to make sure that the symbol is printable
-        bool symbolOkay = false;
-        while (!symbolOkay)
-        {
-            if (Player1.symbol.length() != 1)
-            {
-                cout << "Symbol must be only one character. Enter a new symbol: ";
-                getline(cin, Player1.symbol);
-            }
-            else if (!isprint(Player1.symbol[0]))
-            {
-                cout << "Symbol must be a printable character. Enter a new symbol: ";
-                getline(cin, Player1.symbol);
-            }
-            else if (Player1.symbol == " ")
-            {
-                cout << "Symbol cannot be a space. Enter a new symbol: ";
-                getline(cin, Player1.symbol);
-            }
-            else
-            {
-                symbolOkay = true;
-            }
         }
 
         cout << "Enter Player 2's Name: ";
@@ -150,38 +142,7 @@ public:
                 nameOkay = true;
             }
         }
-        cout << "Choose your symbol " + Player2.name + ": ";
-        getline(cin, Player2.symbol);
 
-        //Check to make sure that the symbol is printable and not the same as the other player's
-        symbolOkay = false;
-        while (!symbolOkay)
-        {
-            if (Player2.symbol.length() != 1)
-            {
-                cout << "Symbol must be only one character. Enter a new symbol: ";
-                getline(cin, Player2.symbol);
-            }
-            else if (!isprint(Player2.symbol[0]))
-            {
-                cout << "Symbol must be a printable character. Enter a new symbol: ";
-                getline(cin, Player2.symbol);
-            }
-            else if (Player2.symbol == " ")
-            {
-                cout << "Symbol cannot be a space. Enter a new symbol: ";
-                getline(cin, Player2.symbol);
-            }
-            else if (Player2.symbol == Player1.symbol)
-            {
-                cout << "Symbol cannot be the same as the other player. Enter a new symbol: ";
-                getline(cin, Player2.symbol);
-            }
-            else
-            {
-                symbolOkay = true;
-            }
-        }
         clear();
         layout("CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart");
     }
