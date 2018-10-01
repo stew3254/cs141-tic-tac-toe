@@ -6,9 +6,7 @@
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <array>
 
-using std::array;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -28,56 +26,41 @@ void clear()
 struct Player {
     string name;
     char symbol = ' ';
-    short score = 0;
+};
+
+
+//Create the Game Board
+class Board {
+public:
+    //Symbol Positions
+    char positions[9] = {' '};
+
+    //The tic tac toe board in string form
+    string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
+
+    //Used to replace the values on the board
+    string update()
+    {
+        short pos = 0;
+        string finalBoard = startingBoard;
+
+        //Used to place all of the symbols or spaces onto the board
+        while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length())
+        {
+            finalBoard[finalBoard.find('.')] = positions[pos];
+        }
+        return finalBoard;
+    }
 };
 
 
 //Create a Game Object
 class Game {
 public:
-
-    //Define a struct to grab the window size
-    struct winsize w{};
-
-    //Create the Game Board
-    class Board {
-    public:
-        //Symbol Positions
-        char positions[9] = {' '};
-
-        //The tic tac toe board in string form
-        string startingBoard[5] = {" . | . | . ", "---|---|---", " . | . | . ", "---|---|---", " . | . | . "};
-
-        /* Confused. Come back to this later after asking for help
-
-        //Used to replace the values on the board
-        string * update()
-        {
-            short pos = 0;
-            static string finalBoard[5];
-
-            for (short i=0; i<startingBoard->length(); i++)
-            {
-                finalBoard[i] = startingBoard[i];
-            }
-
-            for (short i=0; i<finalBoard->length(); i++)
-            {
-                //Used to place all of the symbols or spaces onto the board
-                while (finalBoard[i].find('.') >= 0 && finalBoard[i].find('.') <= finalBoard[i].length())
-                {
-                    finalBoard[i][finalBoard[i].find('.')] = positions[pos];
-                }
-            }
-            return finalBoard;
-        }
-
-         */
-    };
-
     Board GameBoard;
     Player Player1;
     Player Player2;
+
 
 
     //Set up the layout
@@ -86,86 +69,27 @@ public:
         //Frame Details
         string frame;
 
-        //Initialize the window to grab window sizes
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
         //Used to generate a nice border box around the title and game content
-        if (TITLE.length() < w.ws_col)
+        for (short i=0; i<TITLE.length(); i++)
         {
-            for (short i=0; i<w.ws_col; i++)
+            if (i == 0)
             {
-                if (i == 0)
-                {
-                    frame = "+";
-                }
-                else if (i == w.ws_col - 1)
-                {
-                    frame += "+";
-                }
-                else
-                {
-                    frame += "-";
-                }
+                frame = "+--";
             }
-        }
-        else
-        {
-            for (short i=0; i<TITLE.length(); i++)
+            else if (i == TITLE.length() - 1)
             {
-                if (i == 0)
-                {
-                    frame = "+--";
-                }
-                else if (i == TITLE.length() - 1)
-                {
-                    frame += "--+";
-                }
-                else
-                {
-                    frame += "-";
-                }
-            }
-        }
-
-        cout << frame << endl;
-        if (TITLE.length() < w.ws_col)
-        {
-            if (TITLE.length()%2 == 0)
-            {
-                for (short i=0; i<(w.ws_col-TITLE.length())/2; i++)
-                {
-                    if (i == 0)
-                    {
-                        cout << '|';
-                    }
-                    else
-                    {
-                        cout << ' ';
-                    }
-                }
+                frame += "--+";
             }
             else
             {
-                for (short i=0; i<(w.ws_col-TITLE.length() - 1)/2; i++)
-                {
-                    if (i == 0)
-                    {
-                        cout << '|';
-                    }
-                    else
-                    {
-                        cout << ' ';
-                    }
-                }
+                frame += "-";
             }
-            cout << TITLE << endl;
         }
-        else
-        {
-            cout << "| " + TITLE + " |" << endl;
-        }
-        cout << frame << endl;
 
+        cout << frame << endl;
+        cout << "| " + TITLE + " |" << endl;
+        cout << frame << endl;
+        cout << GameBoard.update() << endl;
         cout << frame << endl;
         cout << "  " << Player1.name << ", " << Player2.name << endl;
         cout << frame << endl;
