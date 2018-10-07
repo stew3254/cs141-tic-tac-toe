@@ -13,13 +13,7 @@ using std::endl;
 using std::getline;
 using std::isprint;
 using std::string;
-
-
-// Used to clear the screen
-void clear()
-{
-    cout << "\033[2J\033[1;1H";
-}
+using std::system;
 
 
 //Create a Player Structure
@@ -68,6 +62,7 @@ public:
     {
         //Frame Details
         string frame;
+        unsigned long pos = 0;
 
         //Used to generate a nice border box around the title and game content
         for (short i=0; i<TITLE.length(); i++)
@@ -89,34 +84,42 @@ public:
         cout << frame << endl;
         cout << "| " + TITLE + " |" << endl;
         cout << frame << endl;
-        cout << GameBoard.update() << endl;
+        scoreboard();
         cout << frame << endl;
         cout << "  " << Player1.name << ", " << Player2.name << endl;
         cout << frame << endl;
     }
 
+    void scoreboard()
+    {
+        cout << " " + Player1.name + " | " << Player2.name << endl;
+        for (int i=0; i<Player1.name.length() + 2; i++)
+        {
+            cout << "-";
+        }
+        cout << "|";
+        for (int i=0; i<Player2.name.length() + 2; i++)
+        {
+            cout << "-";
+        }
+        cout << endl << endl;
+    }
+
     void start() {
-        clear();
+        system("clear");
 
         //Define Symbols
         Player1.symbol = 'X';
         Player2.symbol = 'O';
-
-        /* Find a Place where to use this
-        struct winsize w{};
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-
-        cout << w.ws_row << ", " << w.ws_col << endl;
-        */
 
         //Get Player Names
         cout << "Enter Player 1's Name: ";
         getline(cin, Player1.name);
 
         //Make sure the name isn't too long
-        while (Player1.name.length() >= 20)
+        while (Player1.name.length() >= 16)
         {
-            cout << "Please enter a name that's 20 characters or less: ";
+            cout << "Please enter a name that's 16 characters or less: ";
             getline(cin, Player1.name);
         }
 
@@ -127,14 +130,14 @@ public:
         bool nameOkay = false;
         while (!nameOkay)
         {
-            if (Player2.name.length() >= 20)
+            if (Player2.name.length() >= 16)
             {
-                cout << "Please enter a name that's 20 characters or less. Enter a new name: ";
+                cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
                 getline(cin, Player2.name);
             }
             else if (Player2.name == Player1.name)
             {
-                cout << "Please don't choose the same name as Player1. Enter a new name: ";
+                cout << "Please don't choose the exact same name as Player1. Enter a new name: ";
                 getline(cin, Player2.name);
             }
             else
@@ -143,7 +146,7 @@ public:
             }
         }
 
-        clear();
+        system("clear");
         layout("CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart");
     }
 };
