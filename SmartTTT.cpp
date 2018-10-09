@@ -137,7 +137,7 @@ public:
     }
 
     //Starts the game
-    void start() {
+    void start(string &mode) {
         system("clear");
 
         //Define Symbols
@@ -146,36 +146,64 @@ public:
 
         //Get Player Names
         cout << "Enter Player 1's Name: ";
+
+        //Two getlines because for some weird reason the first one takes a newline character
+        //I have no idea where that character comes from. Need to investigate
         getline(cin, Player1.name);
-
-        //Make sure the name isn't too long
-        while (Player1.name.length() >= 16)
-        {
-            cout << "Please enter a name that's 16 characters or less: ";
-            getline(cin, Player1.name);
-        }
-
-        cout << "Enter Player 2's Name: ";
-        getline(cin, Player2.name);
+        getline(cin, Player1.name);
 
         //Again check length and then make sure they don't have the same name as Player1
         bool nameOkay = false;
         while (!nameOkay)
         {
-            if (Player2.name.length() >= 16)
+            if (Player1.name.length() >= 16)
             {
-                cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
-                getline(cin, Player2.name);
+                cout << "Please enter a name that's 16 characters or less: ";
+                getline(cin, Player1.name);
             }
-            else if (Player2.name == Player1.name)
+            else if (Player1.name == "AI")
             {
-                cout << "Please don't choose the exact same name as Player1. Enter a new name: ";
-                getline(cin, Player2.name);
+                cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
+                getline(cin, Player1.name);
             }
             else
             {
                 nameOkay = true;
             }
+        }
+        nameOkay = false;
+
+        if (mode == "m")
+        {
+            cout << "Enter Player 2's Name: ";
+            getline(cin, Player2.name);
+
+            while (!nameOkay)
+            {
+                if (Player2.name.length() >= 16)
+                {
+                    cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
+                    getline(cin, Player2.name);
+                }
+                else if (Player1.name == "AI")
+                {
+                    cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
+                    getline(cin, Player2.name);
+                }
+                else if (Player2.name == Player1.name)
+                {
+                    cout << "Please don't choose the exact same name as Player1. Enter a new name: ";
+                    getline(cin, Player2.name);
+                }
+                else
+                {
+                    nameOkay = true;
+                }
+            }
+        }
+        else
+        {
+            Player2.name = "AI";
         }
 
         system("clear");
@@ -186,7 +214,21 @@ public:
 int main()
 {
     Game TicTacToe;
-    TicTacToe.start();
+    string gameMode;
+
+    system("clear");
+    cout << "Welcome to CS141 Tic-Tac-Toe by Ryan Stewart" << endl;
+    cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
+    cin >> gameMode;
+
+    while (gameMode != "s" && gameMode != "m")
+    {
+        cout << "That is not a valid option. Please choose (s/m): ";
+        cin >> gameMode;
+    }
+    
+    system("clear");
+    TicTacToe.start(gameMode);
     return 0;
 
 }
