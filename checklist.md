@@ -7,7 +7,7 @@ Due Monday December 10 at 11:59PM
 For your term project you will build a tic tac toe game called SmartTTT. If you are not familiar with the tic tac toe game, you can read this Wikipedia article: https://en.wikipedia.org/wiki/Tictactoe
 
 ### Your tic tac toe game must meet the following criteria:
-- [ ] When your program starts you must allow two types of games:
+- [X] When your program starts you must allow two types of games:
 	1. Game 1: Player vs Player. In this version the user can play against another user using your game. In this version of the game, player 1 will use X and player 2 will use O.
 	2. Game 2: Player vs AI. In this version the user will be playing against the AI that you create. In this version of the game, player 1 will use X and the AI you create will use O.
 - [X] Your game must use the standard tic tac toe board, i.e. there will be 9 empty spaces on the board.
