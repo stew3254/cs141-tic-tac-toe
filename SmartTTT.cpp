@@ -18,19 +18,18 @@ using std::system;
 using std::stringstream;
 
 
-//Create a Player Structure
-struct Player {
-    string name;
-    char symbol = ' ';
-    short wins = 0;
-    short losses = 0;
-    short ties = 0;
-};
-
-
 //Create a Game Object
 class Game {
 public:
+
+    //Create a Player Structure
+    struct Player {
+        string name;
+        char symbol = ' ';
+        short wins = 0;
+        short losses = 0;
+        short ties = 0;
+    };
 
     //Create our players
     Player Player1;
