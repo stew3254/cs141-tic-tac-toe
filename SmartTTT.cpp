@@ -4,6 +4,7 @@
 #include <string>
 #include <cctype>
 #include <stdio.h>
+#include <sstream>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
@@ -14,12 +15,16 @@ using std::getline;
 using std::isprint;
 using std::string;
 using std::system;
+using std::stringstream;
 
 
 //Create a Player Structure
 struct Player {
     string name;
     char symbol = ' ';
+    short wins = 0;
+    short losses = 0;
+    short ties = 0;
 };
 
 
@@ -55,54 +60,86 @@ public:
     Player Player1;
     Player Player2;
 
-
-
-    //Set up the layout
-    void layout(const string &TITLE)
+    //Generates the Frame border
+    string frame(const unsigned long len)
     {
         //Frame Details
-        string frame;
+        string border;
         unsigned long pos = 0;
 
         //Used to generate a nice border box around the title and game content
-        for (short i=0; i<TITLE.length(); i++)
+        for (short i=0; i<len; i++)
         {
             if (i == 0)
             {
-                frame = "+--";
+                border = "+--";
             }
-            else if (i == TITLE.length() - 1)
+            else if (i == len - 1)
             {
-                frame += "--+";
+                border += "--+";
             }
             else
             {
-                frame += "-";
+                border += "-";
             }
         }
-
-        cout << frame << endl;
-        cout << "| " + TITLE + " |" << endl;
-        cout << frame << endl;
-        scoreboard();
-        cout << frame << endl;
-        cout << "  " << Player1.name << ", " << Player2.name << endl;
-        cout << frame << endl;
+        return border;
     }
 
-    void scoreboard()
+    //Set up the layout
+    void layout(const string &title)
     {
-        cout << " " + Player1.name + " | " << Player2.name << endl;
+        unsigned long len = title.length();
+        cout << frame(len) << endl;
+        cout << "| " + title + " |" << endl;
+        cout << frame(len) << endl;
+        cout << scoreboard() << endl;
+        cout << frame(len) << endl;
+        cout << "  " << Player1.name << ", " << Player2.name << endl;
+        cout << frame(len) << endl;
+    }
+
+    //Just returns spaces
+    string space(unsigned long len) {
+        string spaces;
+
+        for (int i=0; i<len; i++)
+        {
+            spaces += " ";
+        }
+        return spaces;
+    }
+
+    //Returns the scoreboard
+    string scoreboard()
+    {
+        stringstream ss;
+        string board;
+        unsigned long longestName;
+
+        if (Player1.name.length() >= Player2.name.length())
+        {
+            longestName = Player1.name.length();
+        }
+        else
+        {
+            longestName = Player2.name.length();
+        }
+
+        board += " " + Player1.name + " | " + Player2.name + "\n";
         for (int i=0; i<Player1.name.length() + 2; i++)
         {
-            cout << "-";
+            board += "-";
         }
-        cout << "|";
+        board += "|";
         for (int i=0; i<Player2.name.length() + 2; i++)
         {
-            cout << "-";
+            board += "-";
         }
-        cout << endl << endl;
+        board += "\n";
+        ss << Player1.wins;
+        board += " Wins: " + ss.str() + space(10);
+        return board;
     }
 
     void start() {
