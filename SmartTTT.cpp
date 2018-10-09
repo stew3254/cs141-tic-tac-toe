@@ -58,6 +58,7 @@ public:
                 border += "-";
             }
         }
+        
         return border;
     }
 
@@ -82,6 +83,7 @@ public:
         {
             spaces += " ";
         }
+
         return spaces;
     }
 
@@ -92,6 +94,7 @@ public:
         string board;
         unsigned long longestName;
 
+        //Grabs the longest name's length
         if (Player1.name.length() >= Player2.name.length())
         {
             longestName = Player1.name.length();
@@ -101,7 +104,10 @@ public:
             longestName = Player2.name.length();
         }
 
+        //Prints out Player 1's name and then Player 2's name
         board += " " + Player1.name + " | " + Player2.name + "\n";
+
+        //Prints dashes under the names to make it look like a tally board
         for (int i=0; i<Player1.name.length() + 2; i++)
         {
             board += "-";
@@ -111,9 +117,13 @@ public:
         {
             board += "-";
         }
+
         board += "\n";
+
+        //Start to display scores
         ss << Player1.wins;
         board += " Wins: " + ss.str() + space(10);
+
         return board;
     }
 
@@ -133,6 +143,7 @@ public:
         {
             finalBoard[finalBoard.find('.')] = positions[pos];
         }
+
         return finalBoard;
     }
 
@@ -152,7 +163,7 @@ public:
         getline(cin, Player1.name);
         getline(cin, Player1.name);
 
-        //Again check length and then make sure they don't have the same name as Player1
+        //Check the name length and make sure the player doesn't have the exact same name as the AI
         bool nameOkay = false;
         while (!nameOkay)
         {
@@ -173,11 +184,14 @@ public:
         }
         nameOkay = false;
 
+        //Check to see if the game mode is multiplayer
         if (mode == "m")
         {
             cout << "Enter Player 2's Name: ";
             getline(cin, Player2.name);
 
+            //Again check the name length and make sure the player doesn't have the exact same name as the AI
+            //Also check to see that Player 2's name isn't the same name as Player 1.
             while (!nameOkay)
             {
                 if (Player2.name.length() >= 16)
@@ -201,6 +215,7 @@ public:
                 }
             }
         }
+        //The game mode must be single player
         else
         {
             Player2.name = "AI";
@@ -213,7 +228,10 @@ public:
 
 int main()
 {
+    //Define our game
     Game TicTacToe;
+
+    //Find which mode to play in
     string gameMode;
 
     system("clear");
@@ -221,14 +239,18 @@ int main()
     cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
     cin >> gameMode;
 
+    //Check to see what mode the user wants to play in
     while (gameMode != "s" && gameMode != "m")
     {
         cout << "That is not a valid option. Please choose (s/m): ";
         cin >> gameMode;
     }
-    
+
     system("clear");
+
+    //Start the game
     TicTacToe.start(gameMode);
+
     return 0;
 
 }
