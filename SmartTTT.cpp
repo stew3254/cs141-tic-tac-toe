@@ -28,35 +28,11 @@ struct Player {
 };
 
 
-//Create the Game Board
-class Board {
-public:
-    //Symbol Positions
-    char positions[9] = {' '};
-
-    //The tic tac toe board in string form
-    string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
-
-    //Used to replace the values on the board
-    string update()
-    {
-        short pos = 0;
-        string finalBoard = startingBoard;
-
-        //Used to place all of the symbols or spaces onto the board
-        while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length())
-        {
-            finalBoard[finalBoard.find('.')] = positions[pos];
-        }
-        return finalBoard;
-    }
-};
-
-
 //Create a Game Object
 class Game {
 public:
-    Board GameBoard;
+
+    //Create our players
     Player Player1;
     Player Player2;
 
@@ -93,7 +69,7 @@ public:
         cout << frame(len) << endl;
         cout << "| " + title + " |" << endl;
         cout << frame(len) << endl;
-        cout << scoreboard() << endl;
+        cout << update() << endl;
         cout << frame(len) << endl;
         cout << "  " << Player1.name << ", " << Player2.name << endl;
         cout << frame(len) << endl;
@@ -142,6 +118,26 @@ public:
         return board;
     }
 
+    //Used to replace the values on the board
+    string update()
+    {
+        //Symbol Positions
+        char positions[9] = {' '};
+
+        //The tic tac toe board in string form
+        string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
+        short pos = 0;
+        string finalBoard = startingBoard;
+
+        //Used to place all of the symbols or spaces onto the board
+        while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length())
+        {
+            finalBoard[finalBoard.find('.')] = positions[pos];
+        }
+        return finalBoard;
+    }
+
+    //Starts the game
     void start() {
         system("clear");
 
