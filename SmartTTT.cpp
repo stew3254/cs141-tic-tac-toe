@@ -8,20 +8,22 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+using std::atoi;
 using std::cin;
 using std::cout;
 using std::endl;
 using std::getline;
-using std::isprint;
 using std::string;
 using std::system;
 using std::stringstream;
+using std::tolower;
 
 
 //Create a Player Structure
 struct Player {
 	string name;
 	string symbolIndicator;
+	bool turn;
 	char symbol = ' ';
 	short wins = 0;
 	short losses = 0;
@@ -33,15 +35,23 @@ struct Player {
 class Board {
 public:
 
+	//Symbol Positions
+	char positions[9];
+
 	//The tic tac toe board in string form
 	string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
 	string positionBoard = " 1 | 2 | 3 \n---|---|---\n 4 | 5 | 6 \n---|---|---\n 7 | 8 | 9 ";
 
-	//Used to replace the values on the board
-	string update() {
-		//Symbol Positions
-		char positions[9] = {' '};
+	//Initialize all of the contents of positions (or clear the board)
+	void initialize() {
+		for (int i = 0; i < 9; i++) {
+			positions[i] = ' ';
+		}
+	}
 
+	//Used to replace the values on the board
+	string update(short loc, char symbol) {
+		positions[loc] = symbol;
 		string finalBoard = startingBoard;
 		short pos = 0;
 
@@ -208,72 +218,150 @@ public:
 	//Header title
 	string title = "CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart";
 
+	//Game mode being played
+	char gamemode = 's';
+
     //Starts the game
-    void start(string &mode) {
+    void start(string mode) {
         system("clear");
 
         //Define Symbols
         player1.symbol = 'X';
         player2.symbol = 'O';
 
-        //Get Player Names
-        cout << "Enter Player 1's Name: ";
+		if (player1.name == "") {
+			//Get Player Names
+			cout << "Enter Player 1's Name: ";
 
-        //Two getlines because for some weird reason the first one takes a newline character
-        //I have no idea where that character comes from. Need to investigate
-        getline(cin, player1.name);
-        getline(cin, player1.name);
+			//Two getlines because for some weird reason the first one takes a newline character
+			//I have no idea where that character comes from. Need to investigate
+			getline(cin, player1.name);
+			getline(cin, player1.name);
 
-        //Check the name length and make sure the player doesn't have the exact same name as the AI
-        bool nameOkay = false;
-        while (!nameOkay) {
-            if (player1.name.length() >= 16) {
-                cout << "Please enter a name that's 16 characters or less: ";
-                getline(cin, player1.name);
-            }
-            else if (player1.name == "AI") {
-                cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
-                getline(cin, player1.name);
-            }
-            else {
-                nameOkay = true;
-            }
-        }
-        nameOkay = false;
+			//Check the name length
+			//Make sure the player doesn't have the exact same name as the AI
+			//Make sure the player actually enters a name (they can still do spaces though)
+			bool nameOkay = false;
+			while (!nameOkay) {
+				if (player1.name.length() >= 16) {
+					cout << "Please enter a name that's 16 characters or less: ";
+					getline(cin, player1.name);
+				}
+				else if (player1.name == "AI") {
+					cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
+					getline(cin, player1.name);
+				}
+				else if (player1.name == "") {
+					cout << "Please enter a real name: ";
+					getline(cin, player1.name);
+				}
+				else {
+					nameOkay = true;
+				}
+			}
+		}
+
+		//Initialize all of the board positions
+		board.initialize();
 
         //Check to see if the game mode is multiplayer
         if (mode == "m") {
-            cout << "Enter Player 2's Name: ";
-            getline(cin, player2.name);
+			bool nameOkay;
+			gamemode = 'm';
 
-            //Again check the name length and make sure the player doesn't have the exact same name as the AI
-            //Also check to see that Player 2's name isn't the same name as Player 1.
-            while (!nameOkay) {
-                if (player2.name.length() >= 16) {
-                    cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
-                    getline(cin, player2.name);
-                }
-                else if (player1.name == "AI") {
-                    cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
-                    getline(cin, player2.name);
-                }
-                else if (player2.name == player1.name) {
-                    cout << "Please don't choose the exact same name as player1. Enter a new name: ";
-                    getline(cin, player2.name);
-                }
-                else {
-                    nameOkay = true;
-                }
-            }
-        }
-        //The game mode must be single player
-        else {
-            player2.name = "AI";
-        }
+			system("clear");
+			cout << "Enter Player 2's Name: ";
+			getline(cin, player2.name);
 
-        system("clear");
-        gui.layout(title);
-    }
+			//Again check the name length
+			//Make sure the player doesn't have the exact same name as the AI
+			//Also check to see that Player 2's name isn't the same name as Player 1.
+			while (!nameOkay) {
+				if (player2.name.length() >= 16) {
+					cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
+					getline(cin, player2.name);
+				}
+				else if (player1.name == "AI") {
+					cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
+					getline(cin, player2.name);
+				}
+				else if (player2.name == player1.name) {
+					cout << "Please don't choose the exact same name as player1. ";
+					cout << "Enter a new name: ";
+					getline(cin, player2.name);
+				}
+				else {
+					nameOkay = true;
+				}
+			}
+		}
+		else {
+			gamemode = 's';
+
+			//Player 2 is named AI
+			player2.name = "AI";
+
+			playTurn(player1);
+		}
+	}
+
+	//Used to place a move as a player
+	void playTurn(Player &player) {
+		string loc;
+		bool okay;
+
+		//Clear the screen, draw the board and ask for movement input
+		system("clear");
+		gui.layout(title);
+
+		if (player.name != "AI") {
+			cout << "It is " + player.name + "'s turn" << endl;
+			cout << "Please enter a location to place your move: ";
+			cin >> loc;
+
+			//While the input is invalid loop
+			while (!okay) {
+				//Make sure the input isn't longer than 1
+				if (loc.length() != 1) {
+					cout << "Please enter a valid location to place your move: ";
+					cin >> loc;
+				}
+				//Convert the ascii character to an integer
+				else if (atoi(loc.c_str()) < 1 || atoi(loc.c_str()) > 9) {
+					cout << "Please enter a valid location to place your move: ";
+					cin >> loc;
+				}
+				//Check to see if a symbol is already in that spot
+				else if (board.positions[atoi(loc.c_str())-1] != ' ') {
+					cout << "Please enter a valid location to place your move: ";
+					cin >> loc;
+				}
+				//Break the loop
+				else {
+					okay = true;
+				}
+			}
+
+			//Place the symbol on the board
+			board.update(atoi(loc.c_str()), player.symbol);
+
+			//Tell the player it's not their turn anymore
+			player.turn = false;
+
+			//Check to see which player and change the opposite's turn state to true
+			if (&player == &player1) {
+				player2.turn = true;
+			}
+			else {
+				player1.turn = true;
+			}
+		}
+		//Run the turn for the AI
+		else {
+			player2.turn = false;
+			player1.turn = true;
+		}
+	}
 };
 
 //Define the game
@@ -288,6 +376,9 @@ int main() {
 	cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
 	cin >> gameMode;
 
+	for (int i = 0; i < gameMode.length(); i++) {
+		gameMode[i] = tolower(gameMode[i]);
+	}
 	//Check to see what mode the user wants to play in
 	while (gameMode != "s" && gameMode != "m") {
 		cout << "That is not a valid option. Please choose (s/m): ";
