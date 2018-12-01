@@ -18,60 +18,132 @@ using std::system;
 using std::stringstream;
 
 
-//Create a Game Object
-class Game {
+//Create a Player Structure
+struct Player {
+	string name;
+	string symbolIndicator;
+	char symbol = ' ';
+	short wins = 0;
+	short losses = 0;
+	short ties = 0;
+};
+
+
+//Create a Board class
+class Board {
 public:
 
-    //Create a Player Structure
-    struct Player {
-        string name;
-        char symbol = ' ';
-        short wins = 0;
-        short losses = 0;
-        short ties = 0;
-    };
+	//The tic tac toe board in string form
+	string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
+	string positionBoard = " 1 | 2 | 3 \n---|---|---\n 4 | 5 | 6 \n---|---|---\n 7 | 8 | 9 ";
 
-    //Create our players
-    Player Player1;
-    Player Player2;
+	//Used to replace the values on the board
+	string update() {
+		//Symbol Positions
+		char positions[9] = {' '};
+
+		string finalBoard = startingBoard;
+		short pos = 0;
+
+		//Used to place all of the symbols or spaces onto the board
+		while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length()) {
+			finalBoard[finalBoard.find('.')] = positions[pos];
+		}
+
+		return finalBoard;
+	}
+};
+
+//Create our players
+Player player1;
+Player player2;
+
+//Create the board
+Board board;
+
+
+//Create a Gui Class
+class Gui {
+public:
+	
+    //Overall width of the game board. Must be at least 23 characters long
+    short width = 23;
+
+	//Centers a string to the specified length
+	string center(string input, unsigned long len) {
+		string output;
+		short padding = len - input.length();
+
+		if (padding <= 0) {
+			return input;
+		}
+
+		if (padding%1 == 1) {
+			output += " ";
+			padding -= 1;
+		}
+
+		for (int i = 0; i < padding; i++) {
+			if (i < padding/2) {
+				output = " " + output;
+			}
+			else if (i == padding/2) {
+				output = " " + output;
+				output += input;
+			}
+			else {
+				output += " ";
+			}
+		}
+
+		return output;
+	}
 
     //Generates the Frame border
-    string frame(const unsigned long len)
-    {
+    string frame(unsigned long len) {
         //Frame Details
         string border;
         unsigned long pos = 0;
 
         //Used to generate a nice border box around the title and game content
-        for (short i=0; i<len; i++)
-        {
-            if (i == 0)
-            {
+        for (short i=0; i<len; i++) {
+            if (i == 0) {
                 border = "+--";
             }
-            else if (i == len - 1)
-            {
+            else if (i == len - 1) {
                 border += "--+";
             }
-            else
-            {
+            else {
                 border += "-";
             }
         }
-        
+
+        if (border.length() > width) {
+            width = border.length();
+        }
+
         return border;
     }
 
     //Set up the layout
-    void layout(const string &title)
-    {
-        unsigned long len = title.length();
+    void layout(const string TITLE) {
+        unsigned long len;
+		player1.symbolIndicator = player1.name + ": [ ]";
+		player2.symbolIndicator = player2.name + ": [ ]";
+		len = player1.symbolIndicator.length();
+		len += player2.symbolIndicator.length();
+
+		if (TITLE.length() > len) {
+			len = TITLE.length();
+		}
+
         cout << frame(len) << endl;
-        cout << "| " + title + " |" << endl;
+        cout << "| " + TITLE + " |" << endl;
         cout << frame(len) << endl;
-        cout << update() << endl;
+        cout << board.positionBoard << endl;
         cout << frame(len) << endl;
-        cout << "  " << Player1.name << ", " << Player2.name << endl;
+        cout << " " + player1.symbolIndicator;
+        cout << " | " + player2.symbolIndicator + " " << endl;
         cout << frame(len) << endl;
     }
 
@@ -79,8 +151,7 @@ public:
     string space(unsigned long len) {
         string spaces;
 
-        for (int i=0; i<len; i++)
-        {
+        for (int i=0; i<len; i++) {
             spaces += " ";
         }
 
@@ -88,169 +159,146 @@ public:
     }
 
     //Returns the scoreboard
-    string scoreboard()
-    {
+    string scoreboard(Player player1, Player player2, Board board) {
         stringstream ss;
-        string board;
+        string scoreboard;
         unsigned long longestName;
 
         //Grabs the longest name's length
-        if (Player1.name.length() >= Player2.name.length())
-        {
-            longestName = Player1.name.length();
+        if (player1.name.length() >= player2.name.length()) {
+            longestName = player1.name.length();
         }
-        else
-        {
-            longestName = Player2.name.length();
+        else {
+            longestName = player2.name.length();
         }
 
         //Prints out Player 1's name and then Player 2's name
-        board += " " + Player1.name + " | " + Player2.name + "\n";
+        scoreboard += " " + player1.name + " | " + player2.name + "\n";
 
         //Prints dashes under the names to make it look like a tally board
-        for (int i=0; i<Player1.name.length() + 2; i++)
-        {
-            board += "-";
-        }
-        board += "|";
-        for (int i=0; i<Player2.name.length() + 2; i++)
-        {
-            board += "-";
+        for (int i=0; i<player1.name.length() + 2; i++) {
+            scoreboard += "-";
         }
 
-        board += "\n";
+        scoreboard += "|";
+
+        for (int i=0; i<player2.name.length() + 2; i++) {
+            scoreboard += "-";
+        }
+
+        scoreboard += "\n";
 
         //Start to display scores
-        ss << Player1.wins;
-        board += " Wins: " + ss.str() + space(10);
+        ss << player1.wins;
+        scoreboard += " Wins: " + ss.str() + space(10);
 
-        return board;
+        return scoreboard;
     }
+};
 
-    //Used to replace the values on the board
-    string update()
-    {
-        //Symbol Positions
-        char positions[9] = {' '};
 
-        //The tic tac toe board in string form
-        string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
-        short pos = 0;
-        string finalBoard = startingBoard;
+//Used to draw onto the screen
+Gui gui;
 
-        //Used to place all of the symbols or spaces onto the board
-        while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length())
-        {
-            finalBoard[finalBoard.find('.')] = positions[pos];
-        }
 
-        return finalBoard;
-    }
+//Create a Game Class
+class Game {
+public:
+
+	//Header title
+	string title = "CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart";
 
     //Starts the game
     void start(string &mode) {
         system("clear");
 
         //Define Symbols
-        Player1.symbol = 'X';
-        Player2.symbol = 'O';
+        player1.symbol = 'X';
+        player2.symbol = 'O';
 
         //Get Player Names
         cout << "Enter Player 1's Name: ";
 
         //Two getlines because for some weird reason the first one takes a newline character
         //I have no idea where that character comes from. Need to investigate
-        getline(cin, Player1.name);
-        getline(cin, Player1.name);
+        getline(cin, player1.name);
+        getline(cin, player1.name);
 
         //Check the name length and make sure the player doesn't have the exact same name as the AI
         bool nameOkay = false;
-        while (!nameOkay)
-        {
-            if (Player1.name.length() >= 16)
-            {
+        while (!nameOkay) {
+            if (player1.name.length() >= 16) {
                 cout << "Please enter a name that's 16 characters or less: ";
-                getline(cin, Player1.name);
+                getline(cin, player1.name);
             }
-            else if (Player1.name == "AI")
-            {
+            else if (player1.name == "AI") {
                 cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
-                getline(cin, Player1.name);
+                getline(cin, player1.name);
             }
-            else
-            {
+            else {
                 nameOkay = true;
             }
         }
         nameOkay = false;
 
         //Check to see if the game mode is multiplayer
-        if (mode == "m")
-        {
+        if (mode == "m") {
             cout << "Enter Player 2's Name: ";
-            getline(cin, Player2.name);
+            getline(cin, player2.name);
 
             //Again check the name length and make sure the player doesn't have the exact same name as the AI
             //Also check to see that Player 2's name isn't the same name as Player 1.
-            while (!nameOkay)
-            {
-                if (Player2.name.length() >= 16)
-                {
+            while (!nameOkay) {
+                if (player2.name.length() >= 16) {
                     cout << "Please enter a name that's 16 characters or less. Enter a new name: ";
-                    getline(cin, Player2.name);
+                    getline(cin, player2.name);
                 }
-                else if (Player1.name == "AI")
-                {
+                else if (player1.name == "AI") {
                     cout << "Please enter a name that's not called 'AI'. Enter a new name: ";
-                    getline(cin, Player2.name);
+                    getline(cin, player2.name);
                 }
-                else if (Player2.name == Player1.name)
-                {
-                    cout << "Please don't choose the exact same name as Player1. Enter a new name: ";
-                    getline(cin, Player2.name);
+                else if (player2.name == player1.name) {
+                    cout << "Please don't choose the exact same name as player1. Enter a new name: ";
+                    getline(cin, player2.name);
                 }
-                else
-                {
+                else {
                     nameOkay = true;
                 }
             }
         }
         //The game mode must be single player
-        else
-        {
-            Player2.name = "AI";
+        else {
+            player2.name = "AI";
         }
 
         system("clear");
-        layout("CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart");
+        gui.layout(title);
     }
 };
 
-int main()
-{
-    //Define our game
-    Game TicTacToe;
+//Define the game
+Game TicTacToe;
 
-    //Find which mode to play in
-    string gameMode;
+int main() {
+	//Find which mode to play in
+	string gameMode;
 
-    system("clear");
-    cout << "Welcome to CS141 Tic-Tac-Toe by Ryan Stewart" << endl;
-    cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
-    cin >> gameMode;
+	system("clear");
+	cout << "Welcome to CS141 Tic-Tac-Toe by Ryan Stewart" << endl;
+	cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
+	cin >> gameMode;
 
-    //Check to see what mode the user wants to play in
-    while (gameMode != "s" && gameMode != "m")
-    {
-        cout << "That is not a valid option. Please choose (s/m): ";
-        cin >> gameMode;
-    }
+	//Check to see what mode the user wants to play in
+	while (gameMode != "s" && gameMode != "m") {
+		cout << "That is not a valid option. Please choose (s/m): ";
+		cin >> gameMode;
+	}
 
-    system("clear");
+	system("clear");
 
-    //Start the game
-    TicTacToe.start(gameMode);
+	//Start the game
+	TicTacToe.start(gameMode);
 
-    return 0;
+	return 0;
 
 }
