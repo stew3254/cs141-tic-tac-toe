@@ -42,6 +42,9 @@ public:
 	string startingBoard = " . | . | . \n---|---|---\n . | . | . \n---|---|---\n . | . | . ";
 	string positionBoard = " 1 | 2 | 3 \n---|---|---\n 4 | 5 | 6 \n---|---|---\n 7 | 8 | 9 ";
 
+	//Set this initially to show all possible moves
+	string currentBoard = positionBoard;
+
 	//Initialize all of the contents of positions (or clear the board)
 	void initialize() {
 		for (int i = 0; i < 9; i++) {
@@ -58,6 +61,7 @@ public:
 		//Used to place all of the symbols or spaces onto the board
 		while (finalBoard.find('.') >= 0 && finalBoard.find('.') <= finalBoard.length()) {
 			finalBoard[finalBoard.find('.')] = positions[pos];
+			pos++;
 		}
 
 		return finalBoard;
@@ -136,7 +140,7 @@ public:
     }
 
     //Set up the layout
-    void layout(const string TITLE) {
+    void layout(const string TITLE, string gameBoard) {
         unsigned long len;
 		player1.symbolIndicator = player1.name + ": [ ]";
 		player2.symbolIndicator = player2.name + ": [ ]";
@@ -150,7 +154,7 @@ public:
         cout << frame(len) << endl;
         cout << "| " + TITLE + " |" << endl;
         cout << frame(len) << endl;
-        cout << board.positionBoard << endl;
+        cout << gameBoard << endl;
         cout << frame(len) << endl;
         cout << " " + player1.symbolIndicator;
         cout << " | " + player2.symbolIndicator + " " << endl;
@@ -221,21 +225,133 @@ public:
 	//Game mode being played
 	char gamemode = 's';
 
-    //Starts the game
-    void start(string mode) {
-        system("clear");
+	//Check whether the game is over or not
+	string status = "playing";
 
-        //Define Symbols
-        player1.symbol = 'X';
-        player2.symbol = 'O';
+	//Play the game
+	void play() {
+		string winner;
+		while (status != "over") {
+			//Check whose turn it is and let them take their turn
+			if (player1.turn) {
+				playTurn(player1);
+			}
+			else {
+				playTurn(player2);
+			}
+
+			//Check for a winner
+			winner = checkWin();
+
+			//If the winner is either of the player's names, it will print that player wins
+			if (player1.name == winner) {
+				status = "over";
+				player1.wins += 1;
+				player2.losses += 1;
+
+				system("clear");
+				gui.layout(title, board.currentBoard);
+				cout << player1.name + " wins" << endl;
+			}
+			else if (player2.name == winner) {
+				status = "over";
+				player2.wins += 1;
+				player1.losses += 1;
+
+				system("clear");
+				gui.layout(title, board.currentBoard);
+				cout << player2.name + " wins" << endl;
+			}
+			//Otherwise check to see if the game is a tie or still in progress
+			else {
+				bool okay = true;
+				short positions = 0;
+
+				while (okay) {
+					if (positions >= 9) {
+						okay = false;
+					}
+					if (board.positions[positions] == ' ') {
+						okay = false;
+					}
+					else {
+						positions++;
+					}
+				}
+				if (positions >= 9) {
+					status = "over";
+					player1.ties += 1;
+					player2.ties += 1;
+
+					system("clear");
+					gui.layout(title, board.currentBoard);
+					cout << "It was a tie" << endl;
+				}
+			}
+		}
+	}
+
+	//Check if winner
+	string checkWin() {
+		//Check each column on the board
+		for (short i = 0; i < 3; i++) {
+			//Check to see if there are 3 in a row horizontally
+			if (board.positions[3*i] == board.positions[3*i+1] &&
+					board.positions[3*i] == board.positions[3*i+2]) {
+				if (board.positions[3*i] == player1.symbol) {
+					return player1.name;
+				}
+				else if (board.positions[3*i] == player2.symbol){
+					return player2.name;
+				}
+			}
+			//Check to see if there are 3 in a row vertically
+			else if (board.positions[i] == board.positions[i+3] &&
+					board.positions[i] == board.positions[i+6]) {
+				if (board.positions[i] == player1.symbol) {
+					return player1.name;
+				}
+				else if (board.positions[i] == player2.symbol){
+					return player2.name;
+				}
+			}
+			//Check to see if there are 3 in a row diagonal to the right
+			else if (board.positions[i] == board.positions[i+4] &&
+					board.positions[i] == board.positions[i+8]) {
+				if (board.positions[i] == player1.symbol) {
+					return player1.name;
+				}
+				else if (board.positions[i] == player2.symbol){
+					return player2.name;
+				}
+			}
+			//Check to see if there are 3 in a row diagonal to the left
+			else if (board.positions[i] == board.positions[i+2] &&
+					board.positions[i] == board.positions[i+4]) {
+				if (board.positions[i] == player1.symbol) {
+					return player1.name;
+				}
+				else if (board.positions[i] == player2.symbol){
+					return player2.name;
+				}
+			}
+		}
+		return "none";
+	}
+
+	//Starts the game
+	void start(string mode) {
+		system("clear");
+
+		//Define Symbols
+		player1.symbol = 'X';
+		player2.symbol = 'O';
 
 		if (player1.name == "") {
 			//Get Player Names
 			cout << "Enter Player 1's Name: ";
 
-			//Two getlines because for some weird reason the first one takes a newline character
-			//I have no idea where that character comes from. Need to investigate
-			getline(cin, player1.name);
+			//Get the player's name
 			getline(cin, player1.name);
 
 			//Check the name length
@@ -264,8 +380,8 @@ public:
 		//Initialize all of the board positions
 		board.initialize();
 
-        //Check to see if the game mode is multiplayer
-        if (mode == "m") {
+		//Check to see if the game mode is multiplayer
+		if (mode == "m") {
 			bool nameOkay;
 			gamemode = 'm';
 
@@ -294,56 +410,53 @@ public:
 					nameOkay = true;
 				}
 			}
+			play();
 		}
 		else {
 			gamemode = 's';
 
 			//Player 2 is named AI
 			player2.name = "AI";
-
-			playTurn(player1);
 		}
 	}
 
 	//Used to place a move as a player
 	void playTurn(Player &player) {
 		string loc;
-		bool okay;
+		bool okay = false;
 
 		//Clear the screen, draw the board and ask for movement input
 		system("clear");
-		gui.layout(title);
+		gui.layout(title, board.currentBoard);
 
 		if (player.name != "AI") {
 			cout << "It is " + player.name + "'s turn" << endl;
 			cout << "Please enter a location to place your move: ";
-			cin >> loc;
+			getline(cin, loc);
 
 			//While the input is invalid loop
 			while (!okay) {
 				//Make sure the input isn't longer than 1
 				if (loc.length() != 1) {
 					cout << "Please enter a valid location to place your move: ";
-					cin >> loc;
+					getline(cin, loc);
 				}
 				//Convert the ascii character to an integer
 				else if (atoi(loc.c_str()) < 1 || atoi(loc.c_str()) > 9) {
 					cout << "Please enter a valid location to place your move: ";
-					cin >> loc;
+					getline(cin, loc);
 				}
 				//Check to see if a symbol is already in that spot
 				else if (board.positions[atoi(loc.c_str())-1] != ' ') {
 					cout << "Please enter a valid location to place your move: ";
-					cin >> loc;
+					getline(cin, loc);
 				}
 				//Break the loop
 				else {
+					cout << board.positions[atoi(loc.c_str())-1] << endl;
 					okay = true;
 				}
 			}
-
-			//Place the symbol on the board
-			board.update(atoi(loc.c_str()), player.symbol);
 
 			//Tell the player it's not their turn anymore
 			player.turn = false;
@@ -361,20 +474,26 @@ public:
 			player2.turn = false;
 			player1.turn = true;
 		}
+
+		//Update the current board to after placing the move
+		board.currentBoard = board.update(atoi(loc.c_str()) - 1, player.symbol);
 	}
 };
 
-//Define the game
-Game TicTacToe;
 
 int main() {
+
+	//Define the game
+	Game TicTacToe;
+
 	//Find which mode to play in
 	string gameMode;
 
+	//Get the gamemode
 	system("clear");
 	cout << "Welcome to CS141 Tic-Tac-Toe by Ryan Stewart" << endl;
 	cout << "Which game mode would you like to pick? Single player, or multiplayer? (s/m): ";
-	cin >> gameMode;
+	getline(cin, gameMode);
 
 	for (int i = 0; i < gameMode.length(); i++) {
 		gameMode[i] = tolower(gameMode[i]);
@@ -382,7 +501,7 @@ int main() {
 	//Check to see what mode the user wants to play in
 	while (gameMode != "s" && gameMode != "m") {
 		cout << "That is not a valid option. Please choose (s/m): ";
-		cin >> gameMode;
+		getline(cin, gameMode);
 	}
 
 	system("clear");
