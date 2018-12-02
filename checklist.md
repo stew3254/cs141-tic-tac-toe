@@ -15,10 +15,10 @@ For your term project you will build a tic tac toe game called SmartTTT. If you 
 - [X] Your game board and player moves must be stored in an appropriate data structure, for example a 2D array can be used to store both the game board and player moves.
 - [X] Your game must not allow a player or the AI to enter two X’s or two O’s in a row, as this means one player has not made a turn. If a user enters a letter other than X, x, O, or o then you must indicate that you do not recognize the command. 
 - [X] After each move is made, your game must display the current board with the moves in place.
-- [ ] You  must  show  a  label  on  the  screen  to  indicate  what  shape  is  being  used  by which player.
+- [X] You  must  show  a  label  on  the  screen  to  indicate  what  shape  is  being  used  by which player.
 - [ ] When  playing  in  Game  2  mode,  i.e. Player  vs AI  you  must  implement  an intelligent algorithm that decides the best move for the AI. Your AI is trying to win, so don’t make the AI too easy.
 - [X] Your  game must evaluate  if  the  win  criteria  has  been met after  each  move,  if the  win criteria has not been met then the game proceeds. If the win criteria has been met, then the game is over and you must show the winner. This could be Player 1 or Player 2 in Game 1, or Player 1 or AI in Game 2. If no win criteria has been met, and there are no spaces left then the game is over.
-- [ ] If the game is over, ask the user if they want to play again. If the user wishes to play again, then go back to Step 1 above. 
+- [X] If the game is over, ask the user if they want to play again. If the user wishes to play again, then go back to Step 1 above. 
 - [X] Your  program  must  have  functions  and  data  structures  to  facilitate  the  game  play. Programs with no functions or data structures will be given a 0. 
 
 ----
