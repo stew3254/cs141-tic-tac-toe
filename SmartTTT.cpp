@@ -1,4 +1,4 @@
-/* --- CS141 Multiplayer Tic-Tac-Toe. Created by: Ryan Stewart --- */
+/* --- CS141 Tic-Tac-Toe. Created by: Ryan Stewart --- */
 
 #include <iostream>
 #include <string>
@@ -97,7 +97,7 @@ class Gui {
     short width = 23;
 
     //Centers a string to the specified length
-    string center(string input, unsigned long len) {
+    string center(string input, unsigned long len, char dir) {
       string output;
       short padding = len - input.length();
 
@@ -105,7 +105,7 @@ class Gui {
         return input;
       }
 
-      if (padding%1 == 1) {
+      if (padding%1 == 1 && 'l') {
         output += " ";
         padding -= 1;
       }
@@ -114,8 +114,12 @@ class Gui {
         if (i < padding/2) {
           output = " " + output;
         }
-        else if (i == padding/2) {
+        else if (i == padding/2 && dir == 'l') {
           output = " " + output;
+          output += input;
+        }
+        else if (i == padding/2 && dir == 'r') {
+          output += output + " ";
           output += input;
         }
         else {
@@ -154,29 +158,80 @@ class Gui {
 
     //Set up the layout
     void layout(const string TITLE, string gameBoard) {
-      unsigned long len;
+      unsigned long len = 11;
+      stringstream ss;
       if (player1.turn) {
-        player1.symbolIndicator = player1.name + ": [X]";
-        player2.symbolIndicator = player2.name + ": [ ]";
+        player1.symbolIndicator = player1.name + ": [X] W:";
+        ss << player1.wins;
+        player1.symbolIndicator += ss.str() + " L:";
+        ss.str("");
+        ss << player1.losses;
+        player1.symbolIndicator += ss.str() + " T:";
+        ss.str("");
+        ss << player1.ties;
+        player1.symbolIndicator += ss.str();
+
+        player2.symbolIndicator = player2.name + ": [ ] W:";
+        ss.str("");
+        ss << player2.wins;
+        player2.symbolIndicator += ss.str() + " L:";
+        ss.str("");
+        ss << player2.losses;
+        player2.symbolIndicator += ss.str() + " T:";
+        ss.str("");
+        ss << player2.ties;
+        player2.symbolIndicator += ss.str();
       }
       else {
-        player1.symbolIndicator = player1.name + ": [ ]";
-        player2.symbolIndicator = player2.name + ": [O]";
+        player1.symbolIndicator = player1.name + ": [ ] W:";
+        ss << player1.wins;
+        player1.symbolIndicator += ss.str() + " L:";
+        ss.str("");
+        ss << player1.losses;
+        player1.symbolIndicator += ss.str() + " T:";
+        ss.str("");
+        ss << player1.ties;
+        player1.symbolIndicator += ss.str();
+
+        player2.symbolIndicator = player2.name + ": [O] W:";
+        ss.str("");
+        ss << player2.wins;
+        player2.symbolIndicator += ss.str() + " L:";
+        ss.str("");
+        ss << player2.losses;
+        player2.symbolIndicator += ss.str() + " T:";
+        ss.str("");
+        ss << player2.ties;
+        player2.symbolIndicator += ss.str();
       }
       len = player1.symbolIndicator.length();
-      len += player2.symbolIndicator.length();
+      len += player2.symbolIndicator.length() + 3;
 
       if (TITLE.length() > len) {
         len = TITLE.length();
       }
 
       cout << frame(len) << endl;
-      cout << "| " + TITLE + " |" << endl;
+      cout << "| " + center(TITLE, len, 'l') + " |" << endl;
       cout << frame(len) << endl;
       cout << gameBoard << endl;
       cout << frame(len) << endl;
-      cout << " " + player1.symbolIndicator;
-      cout << " | " + player2.symbolIndicator + " " << endl;
+
+      /* TODO Fix centering correctly. This is annoying and hard */
+      
+      //Attempt to center the player names (probably fail though)
+      if (player1.name.length()%2 == 1 && player2.name.length()%2 == 0) {
+        cout << "| " + center(player1.symbolIndicator, len/2 - 2, 'l');
+        cout << " | " + center(player2.symbolIndicator, len/2 - 1, 'r') + " |" << endl;
+      }
+      else if (player1.name.length()%2 == 0 && player2.name.length()%2 == 1) {
+        cout << "| " + center(player1.symbolIndicator, len/2 - 1, 'l');
+        cout << " | " + center(player2.symbolIndicator, len/2 - 2, 'r') + " |" << endl;
+      }
+      else {
+        cout << "| " + center(player1.symbolIndicator, len/2 - 1, 'l');
+        cout << " | " + center(player2.symbolIndicator, len/2 - 1, 'r') + " |" << endl;
+      }
       cout << frame(len) << endl;
     }
 
@@ -191,8 +246,9 @@ class Gui {
       return spaces;
     }
 
+    /* This doesn't get used
     //Returns the scoreboard
-    string scoreboard(Player player1, Player player2, Board board) {
+    string scoreboard() {
       stringstream ss;
       string scoreboard;
       unsigned long longestName;
@@ -223,10 +279,27 @@ class Gui {
 
       //Start to display scores
       ss << player1.wins;
-      scoreboard += " Wins: " + ss.str() + space(10);
+      scoreboard += " W: " + ss.str() + space(10) + "|";
+      ss.str("");
+      ss << player2.wins;
+      scoreboard +=" W: " + ss.str() + "\n";
+      ss.str("");
+      ss << player1.losses;
+      scoreboard += " L: " + ss.str() + space(10) + "|";
+      ss.str("");
+      ss << player2.losses;
+      scoreboard +=" L: " + ss.str() + "\n";
+      ss.str("");
+      ss << player1.ties;
+      scoreboard += " T: " + ss.str() + space(10) + "|";
+      ss.str("");
+      ss << player2.ties;
+      scoreboard +=" T: " + ss.str() + "\n";
+      ss.str("");
 
       return scoreboard;
     }
+    */
 };
 
 
@@ -239,7 +312,7 @@ class Game {
   public:
 
     //Header title
-    string title = "CS141 Multiplayer Tic-Tac-Toe. By: Ryan Stewart";
+    string title = "CS141 Tic-Tac-Toe. By: Ryan Stewart";
 
     //Game mode being played
     char gamemode = 's';
@@ -250,15 +323,15 @@ class Game {
     bool playAgain() {
       string input;
 
-      cout << "Do you want to keep playing? ";
+      cout << "Do you want to keep playing? (Y/n): ";
       getline(cin, input);
       input = lower(input);
 
       while (true) {
-        if (input == "yes" || input == "y") {
+        if (lower(input) == "yes" || lower(input) == "y") {
           return true;
         }
-        if (input == "no" || input == "n") {
+        if (lower(input) == "no" || lower(input) == "n") {
           return false;
         }
         else {
@@ -300,7 +373,9 @@ class Game {
         board.initialize();
 
         //Redraw the board
-        board.currentBoard = board.update(0, ' ');
+        if (player1.wins + player1.losses + player1.ties != 0) {
+          board.currentBoard = board.update(0, ' ');
+        }
 
         //Play the game until it's over
         while (status != "over") {
@@ -469,10 +544,7 @@ class Game {
           }
         }
       }
-
-      //Initialize all of the board positions
-      board.initialize();
-
+      
       //Check to see if the game mode is multiplayer
       if (mode == "m") {
         bool nameOkay;
@@ -510,6 +582,8 @@ class Game {
 
         //Player 2 is named AI
         player2.name = "AI";
+
+        play();
       }
     }
 
@@ -529,8 +603,22 @@ class Game {
 
         //While the input is invalid loop
         while (!okay) {
+          if (lower(loc) == "position" || lower(loc) == "positions" || lower(loc) == "p") {
+            //Clear the screen, draw the board and ask for movement input
+            system("clear");
+            gui.layout(title, board.positionBoard);
+            cout << "Displaying Positions. Please wait." << endl;
+            sleep(2);
+
+            //Clear the screen, draw the board and ask for movement input
+            system("clear");
+            gui.layout(title, board.currentBoard);
+            cout << "It is " + player.name + "'s turn" << endl;
+            cout << "Please enter a location to place your move: ";
+            getline(cin, loc);
+          }
           //Make sure the input isn't longer than 1
-          if (loc.length() != 1) {
+          else if (loc.length() != 1) {
             cout << "Please enter a valid location to place your move: ";
             getline(cin, loc);
           }
