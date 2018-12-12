@@ -18,9 +18,11 @@ using std::rand;
 using std::srand;
 using std::string;
 using std::stringstream;
+using std::stoi;
 using std::system;
 using std::time;
 using std::tolower;
+using std::to_string;
 
 
 //Convert to lowercase
@@ -320,6 +322,49 @@ class Game {
     //Check whether the game is over or not
     string status = "playing";
 
+    //Initialize game state
+    int gameState[9] = {0};
+
+    //Define a move
+    struct Move {
+      int pos;
+      int row;
+      int column;
+      bool right;
+      bool left;
+
+      //Initialize the values
+      Move() {
+        pos = 0;
+        row = 0;
+        column = 0;
+        right = false;
+        left = false;
+      }
+    };
+
+    //Define a score
+    struct Score{
+      int max;
+      int row[3];
+      int column[3];
+      int diagonal[2];
+
+      //Initialize the values
+      Score() {
+        max = 0;
+        for (int i = 0; i < 3; i++) {
+          row[i] = 0;
+          column[i] = 0;
+          diagonal[i] = 0;
+        }
+      }
+    };
+
+    //Create them
+    Score score;
+    Move move;
+
     bool playAgain() {
       string input;
 
@@ -372,6 +417,28 @@ class Game {
         //Reset all of the spaces on the board
         board.initialize();
 
+        //Reset the game state
+        for (int i = 0; i < 9; i++) {
+          gameState[i] = 0;
+        }
+
+        //Reset the game score and move tracker
+        move.pos = 0;
+        move.row = 0;
+        move.column = 0;
+        move.right = false;
+        move.left = true;
+
+        score.max = 0;
+
+        for (int i = 0; i < 3; i++) {
+          if (i < 2) {
+          score.diagonal[i] = 0;
+          }
+          score.row[i] = 0;
+          score.column[i] = 0;
+        }
+
         //Redraw the board
         if (player1.wins + player1.losses + player1.ties != 0) {
           board.currentBoard = board.update(0, ' ');
@@ -389,7 +456,7 @@ class Game {
           }
 
           //Check for a winner
-          winner = checkWin();
+          winner = checkWin(getGameState());
 
           //If the winner is either of the player's names, it will print that player wins
           if (player1.name == winner) {
@@ -460,50 +527,51 @@ class Game {
     }
 
     //Check if winner
-    string checkWin() {
-      //Check each column on the board
+    string checkWin(int gameState[9]) {
+      int row = 0;
+      int column = 0;
+      int leftDiagonal = 0;
+      int rightDiagonal = 0;
+
       for (short i = 0; i < 3; i++) {
         //Check to see if there are 3 in a row horizontally
-        if (board.positions[3*i] == board.positions[3*i+1] &&
-            board.positions[3*i] == board.positions[3*i+2]) {
-          if (board.positions[3*i] == player1.symbol) {
-            return player1.name;
-          }
-          else if (board.positions[3*i] == player2.symbol){
-            return player2.name;
-          }
+        row = gameState[3*i] + gameState[3*i+1] + gameState[3*i+2];
+        if (row == 15) {
+          return player1.name;
         }
+        else if (row == 6) {
+          return player2.name;
+        }
+        cout << row << endl;
+
         //Check to see if there are 3 in a row vertically
-        else if (board.positions[i] == board.positions[i+3] &&
-            board.positions[i] == board.positions[i+6]) {
-          if (board.positions[i] == player1.symbol) {
-            return player1.name;
-          }
-          else if (board.positions[i] == player2.symbol){
-            return player2.name;
-          }
+        column = gameState[i] + gameState[i+3] + gameState[i+6];
+        if (column == 15) {
+          return player1.name;
         }
-        //Check to see if there are 3 in a row diagonal to the right
-        else if (board.positions[0] == board.positions[4] &&
-            board.positions[0] == board.positions[8]) {
-          if (board.positions[0] == player1.symbol) {
-            return player1.name;
-          }
-          else if (board.positions[0] == player2.symbol){
-            return player2.name;
-          }
-        }
-        //Check to see if there are 3 in a row diagonal to the left
-        else if (board.positions[2] == board.positions[4] &&
-            board.positions[2] == board.positions[6]) {
-          if (board.positions[2] == player1.symbol) {
-            return player1.name;
-          }
-          else if (board.positions[2] == player2.symbol){
-            return player2.name;
-          }
+        else if (column == 6) {
+          return player2.name;
         }
       }
+
+      //Check to see if there are 3 in a row diagonal to the right
+      rightDiagonal = gameState[0] + gameState[4] + gameState[8];
+      if (rightDiagonal == 15) {
+        return player1.name;
+      }
+      else if (rightDiagonal == 6) {
+        return player2.name;
+      }
+
+      //Check to see if there are 3 in a row diagonal to the left
+      leftDiagonal = gameState[2] + gameState[4] + gameState[6];
+      if (leftDiagonal == 15) {
+        return player1.name;
+      }
+      else if (leftDiagonal == 6) {
+        return player2.name;
+      }
+
       return "none";
     }
 
@@ -544,7 +612,7 @@ class Game {
           }
         }
       }
-      
+
       //Check to see if the game mode is multiplayer
       if (mode == "m") {
         bool nameOkay;
@@ -648,15 +716,170 @@ class Game {
         else {
           player1.turn = true;
         }
+
+        //Update the current board to after placing the move
+        board.currentBoard = board.update(atoi(loc.c_str()) - 1, player.symbol);
       }
       //Run the turn for the AI
       else {
         player2.turn = false;
         player1.turn = true;
+        board.currentBoard = board.update(generateMove(getGameState()), player.symbol);
+      }
+    }
+
+    int * getGameState() {
+      //Check each row and column on the board
+      for (int i = 0; i < 9; i++) {
+        if (board.positions[i] == player1.symbol) {
+          gameState[i] = 5;
+        }
+        else if (board.positions[i] == player2.symbol) {
+          gameState[i] = 2;
+        }
+      }
+      return gameState;
+    }
+
+    void getBestScore() {
+      //Assign the row and column scores
+      for (int i = 0; i < 3; i++) {
+        score.row[i] = gameState[3*i] + gameState[3*i+1] + gameState[3*i+2];
+        score.column[i] = gameState[i] + gameState[i+3] + gameState[i+6];
       }
 
-      //Update the current board to after placing the move
-      board.currentBoard = board.update(atoi(loc.c_str()) - 1, player.symbol);
+      //Assign the diagonal states
+      score.diagonal[0] = gameState[0] + gameState[4] + gameState[8];
+      score.diagonal[1] = gameState[2] + gameState[4] + gameState[6];
+
+      //TODO finish this
+      //Check through scores
+      for (int i = 0; i < 3; i++) {
+        if (i  < 2) {
+          if (score.max < score.diagonal[i] && score.max <= 10) {
+            score.max = score.diagonal[i];
+            if (i == 0) {
+              move.right = true;
+              move.left = false;
+              move.row = 0;
+              move.column = 0;
+            }
+            else {
+              move.left = true;
+              move.right = false;
+              move.row = 0;
+              move.column = 0;
+            }
+          }
+          else if (score.max == score.diagonal[i] && score.max <= 10) {
+            if (i == 0) {
+              move.right = true;
+            }
+            else {
+              move.left = true;
+            }
+          }
+        }
+
+        if (score.max < score.row[i] && score.max <= 10) {
+          score.max = score.row[i];
+          move.row = i + 1;
+          move.column = 0;
+          move.right = false;
+          move.left = false;
+        }
+        else if (score.max == score.row[i] && score.max <= 10) {
+          move.row = i + 1;
+        }
+
+        if (score.max < score.column[i] && score.max <= 10) {
+          score.max = score.column[i];
+          move.column = i + 1;
+          move.row = 0;
+          move.right = false;
+          move.left = false;
+        }
+        else if (score.max == score.column[i] && score.max <= 10) {
+          move.column = i + 1;
+        }
+
+      }
+
+      cout << score.max << endl;
+      cout << move.row << ' ' << move.column << ' ' << move.right << ' ' << move.left << endl;
+    }
+
+    int generateMove(int gameState[9]) {
+      //Get possible moves to move to
+      string possibleMoves;
+      int movePosition = 0;
+      long random = 0;
+
+      getBestScore();
+
+      //Get possible moves in a row
+      if (move.row != 0) {
+        for (int i = 3*move.row; i < move.row + 3; i++) {
+          if (board.positions[i] != player1.symbol && board.positions[i] != player2.symbol) {
+            possibleMoves += to_string(i);
+            cout << "Possible row move: " << i << endl;
+          }
+        }
+      }
+
+      //Get possible moves in a column
+      if (move.column != 0) {
+        for (int i = 0; i < 3; i++) {
+          if (board.positions[move.column - 1 + 3*i] != player1.symbol) {
+            if (board.positions[move.column - 1 + 3*i] != player2.symbol) {
+              possibleMoves += to_string(i);
+              cout << "Possible column move: " << i << endl;
+            }
+          }
+        }
+      }
+
+      //Get possible moves for right diagonal
+      if (move.right) {
+        if (board.positions[0] != player1.symbol && board.positions[0] != player2.symbol) {
+            possibleMoves += to_string(0);
+            cout << "Possible right diagonal move: " << 2 << endl;
+        }
+        if (board.positions[4] != player1.symbol && board.positions[4] != player2.symbol) {
+            possibleMoves += to_string(4);
+            cout << "Possible right diagonal move: " << 4 << endl;
+        }
+        if (board.positions[8] != player1.symbol && board.positions[8] != player2.symbol) {
+            possibleMoves += to_string(8);
+            cout << "Possible right diagonal move: " << 8 << endl;
+        }
+      }
+
+      //Get possible moves for left diagonal
+      if (move.left) {
+        if (board.positions[2] != player1.symbol && board.positions[2] != player2.symbol) {
+            possibleMoves += to_string(2);
+            cout << "Possible left diagonal move: " << 2 << endl;
+        }
+        if (board.positions[4] != player1.symbol && board.positions[4] != player2.symbol) {
+            possibleMoves += to_string(4);
+            cout << "Possible left diagonal move: " << 4 << endl;
+        }
+        if (board.positions[6] != player1.symbol && board.positions[6] != player2.symbol) {
+            possibleMoves += to_string(6);
+            cout << "Possible left diagaonl move: " << 6 << endl;
+        }
+      }
+
+      //Pick a random move in the list
+      random = rand()%possibleMoves.length();
+
+      movePosition = possibleMoves[random] - '0';
+
+      cout << movePosition << endl;
+      sleep(5);
+
+      return movePosition;
     }
 };
 
