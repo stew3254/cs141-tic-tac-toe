@@ -346,6 +346,7 @@ class Game {
     //Define a score
     struct Score{
       int max;
+      int min;
       int row[3];
       int column[3];
       int diagonal[2];
@@ -447,7 +448,6 @@ class Game {
         //Play the game until it's over
         while (status != "over") {
           //Check whose turn it is and let them take their turn
-          cout << player1.turn << endl;
           if (player1.turn) {
             playTurn(player1);
           }
@@ -539,7 +539,7 @@ class Game {
         if (row == 15) {
           return player1.name;
         }
-        else if (row == 6) {
+        else if (row == -6) {
           return player2.name;
         }
         cout << row << endl;
@@ -549,7 +549,7 @@ class Game {
         if (column == 15) {
           return player1.name;
         }
-        else if (column == 6) {
+        else if (column == -6) {
           return player2.name;
         }
       }
@@ -559,7 +559,7 @@ class Game {
       if (rightDiagonal == 15) {
         return player1.name;
       }
-      else if (rightDiagonal == 6) {
+      else if (rightDiagonal == -6) {
         return player2.name;
       }
 
@@ -568,7 +568,7 @@ class Game {
       if (leftDiagonal == 15) {
         return player1.name;
       }
-      else if (leftDiagonal == 6) {
+      else if (leftDiagonal == -6) {
         return player2.name;
       }
 
@@ -735,7 +735,7 @@ class Game {
           gameState[i] = 5;
         }
         else if (board.positions[i] == player2.symbol) {
-          gameState[i] = 2;
+          gameState[i] = -2;
         }
       }
       return gameState;
@@ -752,18 +752,20 @@ class Game {
       score.diagonal[0] = gameState[0] + gameState[4] + gameState[8];
       score.diagonal[1] = gameState[2] + gameState[4] + gameState[6];
 
-      //TODO finish this
       //Check through scores
       for (int i = 0; i < 3; i++) {
         if (i  < 2) {
-          if (score.max < score.diagonal[i] && score.max <= 10) {
-            score.max = score.diagonal[i];
+          //Check to see if the minimum score is greater than current score for the diagonal
+          if (score.min > score.diagonal[i]) {
+            score.min = score.diagonal[i];
+            //Check for right diagonal case
             if (i == 0) {
               move.right = true;
               move.left = false;
               move.row = 0;
               move.column = 0;
             }
+            //Check for left diagonal case
             else {
               move.left = true;
               move.right = false;
@@ -771,41 +773,100 @@ class Game {
               move.column = 0;
             }
           }
-          else if (score.max == score.diagonal[i] && score.max <= 10) {
+          //If the minumum score on a case is the same as in other cases, don't reset the others
+          else if (score.min == score.diagonal[i]) {
+            //Check for right diagonal case
             if (i == 0) {
               move.right = true;
             }
+            //Check for left diagonal case
+            else {
+              move.left = true;
+            }
+          }
+          //Check to see if the maximum score is less than current score for the diagonal
+          else if (score.max < score.diagonal[i]) {
+            score.max = score.diagonal[i];
+            //Check for right diagonal case
+            if (i == 0) {
+              move.right = true;
+              move.left = false;
+              move.row = 0;
+              move.column = 0;
+            }
+            //Check for left diagonal case
+            else {
+              move.left = true;
+              move.right = false;
+              move.row = 0;
+              move.column = 0;
+            }
+          }
+          //If the maximum score on a case is the same as in other cases, don't reset the others
+          else if (score.max == score.diagonal[i]) {
+            //Check for right diagonal case
+            if (i == 0) {
+              move.right = true;
+            }
+            //Check for left diagonal case
             else {
               move.left = true;
             }
           }
         }
 
-        if (score.max < score.row[i] && score.max <= 10) {
+        //Check to see if the minimum score is less than current score for the row
+        if (score.min > score.row[i]) {
+          score.min = score.row[i];
+          move.row = i + 1;
+          move.column = 0;
+          move.right = false;
+          move.left = false;
+        }
+        //If the minumum score on a case is the same as in other cases, don't reset the others
+        else if (score.min == score.row[i]) {
+          move.row = i + 1;
+        }
+        //Check to see if the maximum score is less than current score for the row
+        else if (score.max < score.row[i]) {
           score.max = score.row[i];
           move.row = i + 1;
           move.column = 0;
           move.right = false;
           move.left = false;
         }
-        else if (score.max == score.row[i] && score.max <= 10) {
+        //If the maximum score on a case is the same as in other cases, don't reset the others
+        else if (score.max == score.row[i]) {
           move.row = i + 1;
         }
 
-        if (score.max < score.column[i] && score.max <= 10) {
+        //Check to see if the minimum score is less than current score for the row
+        if (score.min > score.column[i]) {
+          score.min = score.column[i];
+          move.column = i + 1;
+          move.row = 0;
+          move.right = false;
+          move.left = false;
+        }
+        //If the minimum score on a case is the same as in other cases, don't reset the others
+        else if (score.min == score.column[i]) {
+          move.column = i + 1;
+        }
+        //Check to see if the maximum score is less than current score for the row
+        else if (score.max < score.column[i]) {
           score.max = score.column[i];
           move.column = i + 1;
           move.row = 0;
           move.right = false;
           move.left = false;
         }
-        else if (score.max == score.column[i] && score.max <= 10) {
+        //If the minimum score on a case is the same as in other cases, don't reset the others
+        else if (score.max == score.column[i]) {
           move.column = i + 1;
         }
 
       }
 
-      cout << score.max << endl;
       cout << move.row << ' ' << move.column << ' ' << move.right << ' ' << move.left << endl;
     }
 
@@ -819,12 +880,13 @@ class Game {
 
       //Get possible moves in a row
       if (move.row != 0) {
-        for (int i = 3*move.row; i < move.row + 3; i++) {
+        for (int i = 3*(move.row-1); i < 3*(move.row-1) + 3; i++) {
           if (board.positions[i] != player1.symbol && board.positions[i] != player2.symbol) {
             possibleMoves += to_string(i);
             cout << "Possible row move: " << i << endl;
           }
         }
+        cout << endl;
       }
 
       //Get possible moves in a column
@@ -832,26 +894,27 @@ class Game {
         for (int i = 0; i < 3; i++) {
           if (board.positions[move.column - 1 + 3*i] != player1.symbol) {
             if (board.positions[move.column - 1 + 3*i] != player2.symbol) {
-              possibleMoves += to_string(i);
-              cout << "Possible column move: " << i << endl;
+              possibleMoves += to_string(move.column - 1 + 3*i);
+              cout << "Possible column move: " << move.column + 3*i << endl;
             }
           }
         }
+        cout << endl;
       }
 
       //Get possible moves for right diagonal
       if (move.right) {
         if (board.positions[0] != player1.symbol && board.positions[0] != player2.symbol) {
             possibleMoves += to_string(0);
-            cout << "Possible right diagonal move: " << 2 << endl;
+            cout << "Possible right diagonal move: " << 1 << endl;
         }
         if (board.positions[4] != player1.symbol && board.positions[4] != player2.symbol) {
             possibleMoves += to_string(4);
-            cout << "Possible right diagonal move: " << 4 << endl;
+            cout << "Possible right diagonal move: " << 5 << endl;
         }
         if (board.positions[8] != player1.symbol && board.positions[8] != player2.symbol) {
             possibleMoves += to_string(8);
-            cout << "Possible right diagonal move: " << 8 << endl;
+            cout << "Possible right diagonal move: " << 9 << endl;
         }
       }
 
@@ -859,25 +922,38 @@ class Game {
       if (move.left) {
         if (board.positions[2] != player1.symbol && board.positions[2] != player2.symbol) {
             possibleMoves += to_string(2);
-            cout << "Possible left diagonal move: " << 2 << endl;
+            cout << "Possible left diagonal move: " << 3 << endl;
         }
         if (board.positions[4] != player1.symbol && board.positions[4] != player2.symbol) {
             possibleMoves += to_string(4);
-            cout << "Possible left diagonal move: " << 4 << endl;
+            cout << "Possible left diagonal move: " << 5 << endl;
         }
         if (board.positions[6] != player1.symbol && board.positions[6] != player2.symbol) {
             possibleMoves += to_string(6);
-            cout << "Possible left diagaonl move: " << 6 << endl;
+            cout << "Possible left diagaonl move: " << 7 << endl;
+        }
+      }
+
+      //If no way to predict moves, just take a random one in an open spot
+      if (possibleMoves == "") {
+        for (int i = 0; i < 9; i++) {
+          if (board.positions[i] != player1.symbol && board.positions[i] != player2.symbol) {
+            possibleMoves += to_string(i);
+          }
         }
       }
 
       //Pick a random move in the list
       random = rand()%possibleMoves.length();
 
+      //Set the move position to the character
+      //The 0 charachter allows the ascii lines up right with the position on the board
+      //It was not working with atoi or stoi for some reason so I did this
       movePosition = possibleMoves[random] - '0';
 
       cout << movePosition << endl;
-      sleep(5);
+      string temp;
+      cin >> temp;
 
       return movePosition;
     }
