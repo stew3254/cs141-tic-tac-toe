@@ -666,6 +666,7 @@ class Game {
 
       if (player.name != "AI") {
         cout << "It is " + player.name + "'s turn" << endl;
+        cout << "Type 'p' or 'positions' for help on how to place tiles on the board" << endl;
         cout << "Please enter a location to place your move: ";
         getline(cin, loc);
 
@@ -682,6 +683,7 @@ class Game {
             system("clear");
             gui.layout(title, board.currentBoard);
             cout << "It is " + player.name + "'s turn" << endl;
+            cout << "Type 'p' or 'positions' for help on how to place tiles on the board" << endl;
             cout << "Please enter a location to place your move: ";
             getline(cin, loc);
           }
